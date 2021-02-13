@@ -1,8 +1,18 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {View, ActivityIndicator, Button, StyleSheet} from 'react-native';
+import { activateKeepAwake, deactivateKeepAwake } from 'expo-keep-awake';
 
 const TimerScreen = () => {
   const [running, setRunning] = useState(false);
+
+  useEffect(() => {
+    if (running) {
+      activateKeepAwake();
+    } else {
+      deactivateKeepAwake();
+    }
+    return () => deactivateKeepAwake();
+  }, [running])
 
   return (
     <View style={styles.container}>
