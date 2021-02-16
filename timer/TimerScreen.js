@@ -1,13 +1,21 @@
 import React, {useState, useEffect, useRef} from 'react';
-import {View, Button, StyleSheet, Text} from 'react-native';
+import {View, Button, StyleSheet} from 'react-native';
 import { activateKeepAwake, deactivateKeepAwake } from 'expo-keep-awake';
 import CountdownDisplay from "./CountdownDisplay";
 
-const TimerScreen = () => {
+const TimerScreen = (
+  {
+    millisInPreviousSegments,
+    setMillisInPreviousSegments,
+    setLatestStartTime
+  }) => {
+
+  const totalTime = 120000;
+
   const [running, setRunning] = useState(false);
   const [currentTime, setCurrentTime] = useState();
-  const [timeRemaining, setTimeRemaining] = useState(60000);
-  const [timeElapsed, setTimeElapsed] = useState(0);
+  const [timeRemaining, setTimeRemaining] = useState(totalTime);
+  const [timeElapsedCurrentSegment, setTimeElapsedCurrentSegment] = useState(0);
   const [startTime, setStartTime] = useState();
   const timerRef = useRef();
 
@@ -22,7 +30,7 @@ const TimerScreen = () => {
 
   useEffect(() => {
     if (running && currentTime && startTime) {
-      setTimeElapsed(currentTime - startTime);
+      setTimeElapsedCurrentSegment(currentTime - startTime);
     }
   }, [currentTime])
 
@@ -32,12 +40,16 @@ const TimerScreen = () => {
 
   const toggleTimer = () => {
     if (!running) {
-      setStartTime(Date.now());
+      const time = Date.now();
+      setStartTime(time);
+      setLatestStartTime(time);
       timerRef.current = setInterval(tick, 250);
     } else {
       clearInterval(timerRef.current);
-      setTimeRemaining(timeRemaining - timeElapsed);
-      setTimeElapsed(0);
+      setTimeRemaining(timeRemaining - timeElapsedCurrentSegment);
+      setMillisInPreviousSegments(millisInPreviousSegments + timeElapsedCurrentSegment);
+      setTimeElapsedCurrentSegment(0);
+      setLatestStartTime(undefined);
     }
     setRunning(!running);
   }
@@ -46,9 +58,9 @@ const TimerScreen = () => {
     <View style={styles.container}>
       <CountdownDisplay
         running={running}
-        timeRemaining={timeRemaining - timeElapsed}
+        timeRemaining={timeRemaining - timeElapsedCurrentSegment}
       />
-      <View>
+      <View style={{flex: 0.5, justifyContent: 'space-around'}}>
         <Button
           title={running && 'stop' || 'start'}
           onPress={() => toggleTimer()}
@@ -62,7 +74,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     flexDirection: 'column',
-    justifyContent: 'space-around',
   },
 });
 

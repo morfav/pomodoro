@@ -1,12 +1,29 @@
-import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import React, {useState} from 'react';
+import {StyleSheet, View} from 'react-native';
 import TimerScreen from "./timer/TimerScreen";
 
-const App = () => (
+import Background from "./background/Background";
+
+const App = () => {
+  const [millisInPreviousSegments, setMillisInPreviousSegments] = useState(0);
+  const [latestStartTime, setLatestStartTime] = useState();
+
+  return (
   <View style={styles.container}>
-    <TimerScreen />
+    <Background
+      millisInPreviousSegments={millisInPreviousSegments}
+      latestStartTime={latestStartTime}
+    />
+    <View style={{flex: 1}}>
+      <TimerScreen
+        millisInPreviousSegments={millisInPreviousSegments}
+        setMillisInPreviousSegments={setMillisInPreviousSegments}
+        setLatestStartTime={setLatestStartTime}
+      />
+    </View>
   </View>
-)
+  )
+}
 
 const styles = StyleSheet.create({
   container: {
