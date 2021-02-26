@@ -1,16 +1,13 @@
 import React from 'react';
-import {ActivityIndicator, StyleSheet, Text, View} from "react-native";
+import {StyleSheet, Text, View} from "react-native";
 
-const CountdownDisplay = ({running, timeRemaining}) => {
+const CountdownDisplay = ({timeRemaining}) => {
   return (
     <View style={styles.container}>
       <View>
-        <ActivityIndicator animating={running}/>
-      </View>
-      <View>
         <Text
           style={styles.text}>
-          {Math.floor(timeRemaining / 60000)}:{Math.round(timeRemaining / 1000) % 60}
+          {Math.floor(timeRemaining / 60000)}:{String(Math.floor(timeRemaining / 1000) % 60).padStart(2, '0')}
         </Text>
       </View>
     </View>
