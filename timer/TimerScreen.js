@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useRef} from 'react';
-import {View, Button, Switch, StyleSheet} from 'react-native';
+import {View, Button, Vibration, StyleSheet} from 'react-native';
 import {activateKeepAwake, deactivateKeepAwake} from 'expo-keep-awake';
 import CountdownDisplay from "./CountdownDisplay";
 
@@ -10,92 +10,105 @@ const TimerScreen = (
     setLatestStartTime
   }) => {
 
-  const longInterval = 50;
-  const shortInterval = 25;
+  const SHORT = 'short';
+  const LONG = 'long';
+  const INTERVAL = 'interval';
+  const BREAK = 'break';
+
+  const intervals = {
+    [SHORT]: {
+      [INTERVAL]: 25 * 60000,
+      [BREAK]: 5 * 60000,
+    },
+    [LONG]: {
+      [INTERVAL]: 50 * 60000,
+      [BREAK]: 10 * 60000,
+    }
+  }
+  const vibratePattern = new Array(5).fill(0).fill(500, 1);
 
   const [running, setRunning] = useState(false);
   const [currentTime, setCurrentTime] = useState();
   const [timeRemaining, setTimeRemaining] = useState(0);
   const [timeElapsedCurrentSegment, setTimeElapsedCurrentSegment] = useState(0);
   const [startTime, setStartTime] = useState();
-  const [isLongInterval, setIsLongInterval] = useState(false);
+  const [intervalLength, setIntervalLength] = useState(SHORT);
+  const [intervalType, setIntervalType] = useState(INTERVAL);
   const timerRef = useRef();
 
   useEffect(() => {
     reset();
-  }, [isLongInterval])
+    if (running) {
+      setStartTimes();
+    }
+  }, [intervalLength, intervalType])
 
   useEffect(() => {
     if (running) {
       activateKeepAwake();
+      setStartTimes();
+      timerRef.current = setInterval(tick, 100);
     } else {
       deactivateKeepAwake();
+      clearInterval(timerRef.current);
+      reset();
     }
     return () => deactivateKeepAwake();
   }, [running])
 
   useEffect(() => {
     if (running && currentTime && startTime) {
-      setTimeElapsedCurrentSegment(currentTime - startTime);
+      let elapsed = currentTime - startTime;
+      if (elapsed > intervals[intervalLength][intervalType]) {
+        Vibration.vibrate(vibratePattern);
+        if (intervalType === INTERVAL) {
+          setIntervalType(BREAK);
+        } else {
+          setIntervalType(INTERVAL);
+        }
+      }
+      setTimeElapsedCurrentSegment(elapsed);
     }
   }, [currentTime])
 
   const reset = () => {
-    if (isLongInterval) {
-      setTimeRemaining(longInterval * 60000);
-    } else {
-      setTimeRemaining(shortInterval * 60000);
-    }
+    setTimeRemaining(intervals[intervalLength][intervalType]);
+    setMillisInPreviousSegments(millisInPreviousSegments + timeElapsedCurrentSegment);
+    setTimeElapsedCurrentSegment(0);
+    setLatestStartTime(undefined);
   }
 
   const tick = () => {
     setCurrentTime(Date.now());
   }
 
-  const toggleTimer = () => {
-    if (!running) {
-      const time = Date.now();
-      setStartTime(time);
-      setLatestStartTime(time);
-      timerRef.current = setInterval(tick, 100);
-    } else {
-      clearInterval(timerRef.current);
-      setTimeRemaining(timeRemaining - timeElapsedCurrentSegment);
-      setMillisInPreviousSegments(millisInPreviousSegments + timeElapsedCurrentSegment);
-      setTimeElapsedCurrentSegment(0);
-      setLatestStartTime(undefined);
-    }
+  const setStartTimes = () => {
+    const time = Date.now();
+    setStartTime(time);
+    setLatestStartTime(time);
+  }
+
+  const onReset = () => {
     setRunning(!running);
+    setIntervalType(INTERVAL);
   }
 
   return (
     <View style={styles.container}>
       <CountdownDisplay
-        running={running}
         timeRemaining={timeRemaining - timeElapsedCurrentSegment}
       />
-      <View style={{
-        flex: 0.5,
-        flexDirection: 'row',
-        justifyContent: 'space-around',
-      }}
-      >
+      <View style={styles.buttons}>
         <View>
           <Button
-            title={'reset'}
-            onPress={() => reset()}
+            title={intervalLength}
+            onPress={() => setIntervalLength(intervalLength === LONG ? SHORT : LONG)}
           />
         </View>
         <View>
           <Button
-            title={running && 'pause' || 'start'}
-            onPress={() => toggleTimer()}
-          />
-        </View>
-        <View>
-          <Button
-            title={isLongInterval && 'short' || 'long'}
-            onPress={() => setIsLongInterval(!isLongInterval)}
+            title={running && 'reset' || 'start'}
+            onPress={() => onReset()}
           />
         </View>
       </View>
@@ -108,6 +121,11 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'column',
   },
+  buttons: {
+    flex: 0.5,
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+  }
 });
 
 export default TimerScreen;
