@@ -34,8 +34,8 @@ const Background = ({millisInPreviousSegments, latestStartTime}) => {
     gl.useProgram(program);
     const uniformLoc = name => gl.getUniformLocation(program, name);
     gl.uniform2f(uniformLoc("iResolution"),
-      dimensions.width,
-      dimensions.height);
+      dimensions.width * dimensions.scale,
+      dimensions.height * dimensions.scale);
     timeAddressRef.current = uniformLoc("iTime");
     gl.uniform1f(timeAddressRef.current, 0);
 
