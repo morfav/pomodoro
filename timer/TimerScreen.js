@@ -1,7 +1,8 @@
 import React, {useState, useEffect, useRef} from 'react';
-import {View, Button, Vibration, StyleSheet} from 'react-native';
+import {View, TouchableOpacity, Vibration, StyleSheet, Text} from 'react-native';
 import {activateKeepAwake, deactivateKeepAwake} from 'expo-keep-awake';
 import CountdownDisplay from "./CountdownDisplay";
+import TouchableButton from "../ui/TouchableButton";
 
 const TimerScreen = (
   {
@@ -99,18 +100,15 @@ const TimerScreen = (
         timeRemaining={timeRemaining - timeElapsedCurrentSegment}
       />
       <View style={styles.buttons}>
-        <View>
-          <Button
-            title={intervalLength}
-            onPress={() => setIntervalLength(intervalLength === LONG ? SHORT : LONG)}
-          />
-        </View>
-        <View>
-          <Button
-            title={running && 'reset' || 'start'}
-            onPress={() => onReset()}
-          />
-        </View>
+        <TouchableButton
+          onPress={() => setIntervalLength(intervalLength === LONG ? SHORT : LONG)}
+          text={intervalLength}
+        />
+        <TouchableButton
+          onPress={() => onReset()}
+          text={running && 'reset' || 'start'}
+        >
+        </TouchableButton>
       </View>
     </View>
   )
