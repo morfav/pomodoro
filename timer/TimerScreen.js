@@ -100,15 +100,18 @@ const TimerScreen = (
         timeRemaining={timeRemaining - timeElapsedCurrentSegment}
       />
       <View style={styles.buttons}>
-        <TouchableButton
-          onPress={() => setIntervalLength(intervalLength === LONG ? SHORT : LONG)}
-          text={intervalLength}
-        />
-        <TouchableButton
-          onPress={() => onReset()}
-          text={running && 'reset' || 'start'}
-        >
-        </TouchableButton>
+        <View>
+          <TouchableButton
+            onPress={() => setIntervalLength(intervalLength === LONG ? SHORT : LONG)}
+            text={intervalLength}
+          />
+        </View>
+        <View>
+          <TouchableButton
+            onPress={() => onReset()}
+            text={running && 'reset' || 'start'}
+          />
+        </View>
       </View>
     </View>
   )
@@ -121,6 +124,7 @@ const styles = StyleSheet.create({
   },
   buttons: {
     flex: 0.5,
+    alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'space-around',
   }
