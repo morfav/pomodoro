@@ -1,4 +1,4 @@
-#Productivity timer
+# Productivity timer
 
 This is an Expo React Native project. The background is animated using fragment shaders.
 
