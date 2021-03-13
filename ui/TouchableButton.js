@@ -1,10 +1,19 @@
-import {StyleSheet, Text, Pressable} from "react-native";
 import React from "react";
+import {StyleSheet, Text, Pressable} from "react-native";
 
-const TouchableButton = ({onPress, text}) => (
+import * as Haptics from 'expo-haptics';
+
+const TouchableButton = ({onPress, text}) => {
+
+  const hapticOnPress = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    onPress();
+  }
+
+  return (
     <Pressable
-      onPress={onPress}
-      style={({ pressed }) => [
+      onPress={() => hapticOnPress()}
+      style={({pressed}) => [
         {
           backgroundColor: pressed ? '#AA85CB' : undefined,
         },
@@ -17,7 +26,8 @@ const TouchableButton = ({onPress, text}) => (
         {text}
       </Text>
     </Pressable>
-);
+  );
+};
 
 const styles = StyleSheet.create({
   container: {

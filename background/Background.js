@@ -106,7 +106,6 @@ const Background = ({millisInPreviousSegments, latestStartTime}) => {
   const isVertical = screenOrientationInfo => (screenOrientationInfo.orientationInfo.verticalSizeClass !== 1)
 
   const updateShaderDimensions = (isVerticalOrientation) => {
-    console.log(isVerticalOrientation)
     if (!glRef || !programRef) {
       return;
     }

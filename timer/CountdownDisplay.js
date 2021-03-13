@@ -2,12 +2,14 @@ import React from 'react';
 import {StyleSheet, Text, View} from "react-native";
 
 const CountdownDisplay = ({timeRemaining}) => {
+  const secondsRemaining = Math.ceil(timeRemaining / 1000);
+
   return (
     <View style={styles.container}>
       <View style={styles.row}>
         <Text
           style={[styles.text, styles.textCell, styles.rightAlign]}>
-          {Math.floor(timeRemaining / 60000)}
+          {String(Math.floor( secondsRemaining / 60)).padStart(2, '0')}
         </Text>
         <Text
           style={styles.text}>
@@ -15,7 +17,7 @@ const CountdownDisplay = ({timeRemaining}) => {
         </Text>
         <Text
           style={[styles.text, styles.textCell, styles.leftAlign]}>
-          {String(Math.floor(timeRemaining / 1000) % 60).padStart(2, '0')}
+          {String(secondsRemaining % 60).padStart(2, '0')}
         </Text>
       </View>
     </View>

@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useRef} from 'react';
-import {View, TouchableOpacity, Vibration, StyleSheet, Text} from 'react-native';
+import {View, Vibration, StyleSheet, Platform} from 'react-native';
 import {activateKeepAwake, deactivateKeepAwake} from 'expo-keep-awake';
 import CountdownDisplay from "./CountdownDisplay";
 import TouchableButton from "../ui/TouchableButton";
@@ -26,7 +26,7 @@ const TimerScreen = (
       [BREAK]: 10 * 60000,
     }
   }
-  const vibratePattern = new Array(5).fill(0).fill(500, 1);
+  const vibratePattern = new Array(5 * (Platform.OS === "android" ? 2 : 1)).fill(200).fill(500, 1);
 
   const [running, setRunning] = useState(false);
   const [currentTime, setCurrentTime] = useState();
