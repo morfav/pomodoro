@@ -32,7 +32,7 @@ const styles = StyleSheet.create({
   text: {
     color: 'white',
     fontWeight: "200",
-    fontSize: 36,
+    fontSize: 32,
   }
 });
 

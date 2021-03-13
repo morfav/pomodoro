@@ -1,5 +1,6 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {StyleSheet, View} from 'react-native';
+import * as ScreenOrientation from 'expo-screen-orientation';
 import TimerScreen from "./timer/TimerScreen";
 
 import Background from "./background/Background";
@@ -7,6 +8,9 @@ import Background from "./background/Background";
 const App = () => {
   const [millisInPreviousSegments, setMillisInPreviousSegments] = useState(0);
   const [latestStartTime, setLatestStartTime] = useState();
+  useEffect(() => {
+    ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.DEFAULT);
+  }, [])
 
   return (
   <View style={styles.container}>

@@ -1,6 +1,8 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useRef} from 'react';
 import {View, useWindowDimensions} from "react-native";
 import {GLView} from "expo-gl";
+import * as ScreenOrientation from 'expo-screen-orientation';
+
 import vShaderSrc from "./shaders/vShader.frag";
 import fShaderSrc from "./shaders/fShader.frag";
 
@@ -33,9 +35,12 @@ const Background = ({millisInPreviousSegments, latestStartTime}) => {
     gl.linkProgram(program);
     gl.useProgram(program);
     const uniformLoc = name => gl.getUniformLocation(program, name);
-    gl.uniform2f(uniformLoc("iResolution"),
-      dimensions.width * dimensions.scale,
-      dimensions.height * dimensions.scale);
+    const [width, height] = getWidthHeight(true);
+    gl.uniform2f(uniformLoc("iResolution"), width, height);
+    ScreenOrientation.getOrientationAsync()
+      .then(screenOrientation => updateShaderDimensions(
+        screenOrientation !== ScreenOrientation.Orientation.LANDSCAPE_LEFT
+        && screenOrientation !== ScreenOrientation.Orientation.LANDSCAPE_RIGHT));
     timeAddressRef.current = uniformLoc("iTime");
     gl.uniform1f(timeAddressRef.current, 0);
 
@@ -85,6 +90,43 @@ const Background = ({millisInPreviousSegments, latestStartTime}) => {
     }
     animationFrameRef.current = requestAnimationFrame(animationLoop);
   }
+
+  const getWidthHeight = isVerticalOrientation => {
+    let width, height;
+    if (isVerticalOrientation) {
+      width = dimensions.width * dimensions.scale;
+      height = dimensions.height * dimensions.scale;
+    } else {
+      height = dimensions.width * dimensions.scale;
+      width = dimensions.height * dimensions.scale;
+    }
+    return [width, height];
+  }
+
+  const isVertical = screenOrientationInfo => (screenOrientationInfo.orientationInfo.verticalSizeClass !== 1)
+
+  const updateShaderDimensions = (isVerticalOrientation) => {
+    console.log(isVerticalOrientation)
+    if (!glRef || !programRef) {
+      return;
+    }
+    const gl = glRef.current;
+    const program = programRef.current;
+    if (gl && program) {
+      const uniformLoc = name => gl.getUniformLocation(program, name);
+      const [width, height] = getWidthHeight(isVerticalOrientation)
+      gl.uniform2f(
+        uniformLoc("iResolution"),
+        width, height);
+    }
+  }
+
+  useEffect(() => {
+    ScreenOrientation.addOrientationChangeListener(
+      screenOrientationInfo =>
+        updateShaderDimensions(isVertical(screenOrientationInfo)));
+    return () => ScreenOrientation.removeOrientationChangeListeners();
+  }, [])
 
   useEffect(() => {
     animationFrameRef.current = requestAnimationFrame(animationLoop);
