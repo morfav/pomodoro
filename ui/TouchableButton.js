@@ -25,13 +25,14 @@ const styles = StyleSheet.create({
   },
   button: {
     alignItems: "center",
-    padding: 25,
-    borderRadius: 40,
+    padding: 20,
+    borderRadius: 45,
+    minWidth: 130,
   },
   text: {
     color: 'white',
     fontWeight: "200",
-    fontSize: 24,
+    fontSize: 36,
   }
 });
 
